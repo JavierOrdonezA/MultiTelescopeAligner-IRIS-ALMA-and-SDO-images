@@ -44,6 +44,15 @@ def download_sdo(tsdo_init_dwl,tsdo_fina_dwl,Tx, Ty, aiasq):
     Comments:
     ---------
     It can be extended ot oher wavelenghts
+    
+    This function downloads the data from the SDO (Solar Dynamics Observatory) 
+    and HMI (Helioseismic and Magnetic Imager)  instruments for different wavelengths 
+    and stores them in corresponding folders. It first creates folders to store the downloaded data. 
+    Then, it proceeds to download the AIA (Atmospheric Imaging Assembly) data for different wavelengths 
+    specified by the 'wl' list.  The downloaded data is cropped and rotated, and then saved in the 'crop_and_rotate' 
+    and 'crop' folders, respectively.  Next, it downloads the HMI data for magnetograms and performs similar cropping 
+    and rotation before saving the data.
+    Finally, it prints a message to indicate that the download process has finished.
     """
     
     ## AIA wavelength
@@ -183,14 +192,18 @@ def create_data_cube( path_img_crop, intrument):
     
     data_cubo    :  data cube builed with SDO image  cropped 
     data_time_utc:  data_OBS of whole image  in forma %Y-%m-%dT%H:%M:%S.%f
+    
+    
+    -----outputs----
+    data_cube: Data cube built with the cropped SDO images.
+    data_time_utc: OBS data of the entire image in the format %Y-%m-%dT%H:%M:%S.%f
+
     _______________________________________________________________________________________________________________
-    WARNING:, ALL matrixs in the vector (data cube) should has the same shape, in general 
-    when we do  the crop using sunpy this this will not be.
-    when all the arrays in the data cube do not have the same shape you will have 
-    problems trying to convert the list to an array . The error (likes, ValueError: could not 
-    broadcast input array from shape (453,452) into shape (453,)) you will get was 
-    reported in 
-    url : https://stackoverflow.com/questions/43977463/valueerror-could-not-broadcast-input-array-from-shape-224-224-3-into-shape-2
+    WARNING: All matrices in the vector (data cube) should have the same shape.
+    If the arrays in the data cube do not have the same shape, you will encounter problems when converting the list to an array.
+    The error message "ValueError: could not broadcast input array from shape (453, 452) into shape (453,)" can occur.
+    Please refer to the following URL for more information: 
+    https://stackoverflow.com/questions/43977463/valueerror-could-not-broadcast-input-array-from-shape-224-224-3-into-shape-2
     ______________________________________________________________________________________________________________
     """
     intrument=intrument.lower()
@@ -202,9 +215,9 @@ def create_data_cube( path_img_crop, intrument):
 
     #-----------------Creating a date cube------------------------
     """
-     It necesary considere two case becasuse the DATE-OBS in HMI has 
-     another format ('2018-04-12T15:45:31.700001Z') that  AIA 
-     DATE-OBS ('2018-04-12T15:45:28.84') 
+    It is necessary to consider two cases because the DATE-OBS in HMI has 
+    a different format ('2018-04-12T15:45:31.700001Z') than AIA 
+    DATE-OBS ('2018-04-12T15:45:28.84') 
     """
     date_format = "%Y-%m-%dT%H:%M:%S.%f"
     
@@ -250,10 +263,19 @@ def create_data_cube( path_img_crop, intrument):
 
 def aperture_circ_ALMA(alma_cube):
     """
-    This function allow us to do a mask of a matrix with the FoV of ALMA
+    Create a circular mask for a matrix with the Field of View (FoV) of ALMA.
 
-    Input  : almacube obtained using SALSA 
-    Output : A matrix mask with the same shape to ALMA'S IMAGES 
+    Input:
+    - alma_cube: ALMA cube obtained using SALSA.
+
+    Output:
+    - A matrix mask with the same shape as ALMA's images.
+
+    This function creates a circular mask for a matrix with the Field of View (FoV) of ALMA.
+    The ALMA cube is used to determine the size of the mask.
+    The mask is created by generating a grid of x and y values, calculating the radius of each point,
+    and setting the values inside the circle to 1.0 in the aperture matrix.
+    The resulting aperture matrix is returned.
     """
     x_size=alma_cube.shape[1]
     n = x_size
@@ -275,12 +297,21 @@ def aperture_circ_ALMA(alma_cube):
 
 def fun_alma_rotate(cubo_alma, header_alma):
     """
-    Regard to IRIS/SDO images the ALMA images are rotated. 
-    This function delete this rotation and applied  the 
-    function aperture_circ_ALMA to has the FoV of ALMA
-    
-    Input : ALMA CUBE taken from  SALSA
-    Output: ALMA_CUBE without rotation  
+    Remove the rotation from ALMA images and apply the aperture_circ_ALMA 
+    function to match ALMA's FoV.
+
+    Input:
+    - cubo_alma: ALMA cube taken from SALSA.
+    - header_alma: Header of the ALMA cube.
+
+    Output:
+    - ALMA_CUBE without rotation.
+
+    This function removes the rotation from ALMA images by rotating each 
+    image in the cube using the 'SOLAR_P' angle from the header.
+    The function then applies the aperture_circ_ALMA function to match 
+    the Field of View (FoV) of ALMA.
+    The resulting cube without rotation is returned.
     """
     #rotating ALMDA DATA
     imag_alma_rot=[]
@@ -301,23 +332,31 @@ def fun_alma_rotate(cubo_alma, header_alma):
 
 def iris_rescale(iris_fits_file, alma_resolution):
     """
-    This function rescale IRISeS images. For that,  
-    we  taken  the IRIS'S images in its resolution 
-    and we carry  to the ALMA resolution
+    Rescale IRIS images from their original resolution to the ALMA resolution.
 
-    Input  :  IRIS FILE.FIT 
-    Output :  Vector with IRIS IMAGES  rescaled 
+    Input:
+    - iris_fits_file: IRIS FITS file.
+    - alma_resolution: ALMA resolution in arcseconds.
+
+    Output:
+    - Vector with IRIS images rescaled.
+
+    This function rescales IRIS images from their original resolution to the ALMA resolution.
+    It calculates the scale factor by dividing the IRIS resolution (obtained from the header) 
+    by the ALMA resolution.
+    The IRIS images are then rescaled using the calculated scale factor.
+    The resulting vector with rescaled IRIS images is returned.
     """
     # wearing  IRIS' resolution to ALMA resolution
     #|---- Band 3 ALMA resolution is 0.3 arcsec----|
     #|------- header['CDELT1A']=0.3 arcsec---------|
     print('______________________________________________________')
-    print('initial shape:',iris_fits_file[0].data.shape)
+    print('Initial shape:',iris_fits_file[0].data.shape)
 
     #alma_resolution=0.3 #|---- Band 3 ALMA resolution is 0.3 arcsec----|
     iris_resolution=iris_fits_file[0].header['CDELT1']
     scale_factor=iris_resolution/alma_resolution # to scale IRIS resolution
-    print('scale_factor:', scale_factor)
+    print('Scale_factor:', scale_factor)
     rescaling_iris=[]
 
     # from (950, 774, 735) ----> (950, 429, 408)
@@ -332,15 +371,22 @@ def iris_rescale(iris_fits_file, alma_resolution):
 
 def creating_time_vector(iris_file):
     """
-    This function allows us to create the time vector 
-    in datetime.strptime format for IRIS data cubes.
-    ----------------------------Input----------------------------------
-    Parameters: 
-                iris_file: type .fits  is the datacube of iris with its header 
+    Create the time vector in datetime.strptime format for IRIS data cubes.
 
-    ----------------------------Output----------------------------------
-    time vector type array and its elements  is  datetime.strptime format 
+    Input:
+    - iris_file: Data cube of IRIS with its header (.fits file).
+
+    Output:
+    - Time vector as an array with elements in datetime.strptime format.
+
+    This function allows us to create the time vector in datetime.strptime format for 
+    IRIS data cubes. It takes the cadence from the header and calculates the time in 
+    seconds for each frame in the data cube.The time vector is then created by adding 
+    the calculated time to the start time of observation obtained from the header.
+    The resulting time vector is returned as an array with elements in datetime.strptime format.
     """
+    
+    
     date_format   = "%Y-%m-%dT%H:%M:%S.%f"
     cadence       = iris_file[0].header['CADPL_AV']
     vec_sec_iris  = np.linspace(0,len(iris_file[0].data)-1,len(iris_file[0].data))*cadence 
@@ -359,21 +405,24 @@ def creating_time_vector(iris_file):
 
 def find_nearest(array, alma_t0, alma_tf, name_telesc_of_array, name_telesc_t0_t_f ):
     '''
-    This function allows us to find (in a time vector) 
-    the initial and final times at times alma_t0, alma_tf.
-    
-    --------------------Input----------------------------------
-    Parameters: 
-                array : type array and its elements is in the datetime.datetime 
-                        format (in this case we  obtained this vector using the )
-                        in our case this time vector was obtained with the DATA-OBS 
-                        of each previously downloaded SDO frame  
-                alma_t0: type T0 is  where the ALMA observation has started
-                         datetime.datetime  format
-                alma_tf: type Tf is  where the ALMA observation has finalized 
-                         datetime.datetime  format  
-    --------------------Output----------------------------------
-    Positions in the vector array (array) closest to the   alma_t0, alma_tf        
+    Find the initial and final times in a time vector closest to the given ALMA observation times.
+
+    Input:
+    - array: Array with elements in datetime.datetime format (time vector obtained using the 
+      DATA-OBS of each previously downloaded SDO frame).
+    - alma_t0: Start time of the ALMA observation in datetime.datetime format.
+    - alma_tf: End time of the ALMA observation in datetime.datetime format.
+    - name_telesc_of_array: Name of the telescope corresponding to the array.
+    - name_telesc_t0_t_f: Name of the telescope corresponding to alma_t0 and alma_tf.
+
+    Output:
+    - Positions in the vector array (array) closest to alma_t0 and alma_tf.
+
+    This function allows us to find, in a time vector, the initial and final times at times alma_t0 
+    and alma_tf.
+    It calculates the indices of the elements in the array that are closest to alma_t0 and alma_tf.
+    The function also prints the found times and their corresponding positions in the array.
+    The indices idx_0 and idx_f are returned.
     '''
     array = np.asarray(array)
     idx_0 = (np.abs(array - alma_t0)).argmin()
@@ -391,25 +440,37 @@ def find_nearest(array, alma_t0, alma_tf, name_telesc_of_array, name_telesc_t0_t
 
 
 
-def similarity(iris_fits_file, timeutc_alma, alma_cube, alma_resolution, method='pearson'):
-    """
-    This function aligns the IRIS and ALMA image. For that, it estimates the best Pearson 
-    coefficient between the average matrix of the ALMA and IRIS data in the same observation 
-    window and on the same scale (imsolating the images between a minimum (12th Percentile) 
-    and a maximum (95th Percentile)). and for a given center, the ALMA image is transposed 
-    onto the IRIS image in search of a maximum Pearson correlation.
+	 
 
-    inpunt: -IRIS FILE
-            -TIME UTC and ALMACUBE taken from  SALSA   
-            -alma_resolution : pixel size of alma (in band 3 is 0.3 arcsec)
-    Output: - x_max_pearson    : Position in the IRIS matrix that has the best x correlation 
-            - y_max_pearson    : Position in the IRIS matrix that has the best y correlation 
-            - int(posicion_n_0): Position in the IRIS datacube of image that was taken in the 
-                                 t_0 ALMAUTC
-            -int(posicion_n_f)   Position in the IRIS datacube of image that was taken in the 
-                                 t_f ALMAUTC
+def similarity(iris_fits_file, timeutc_alma, alma_cube, alma_resolution, method='pearson'):
+    '''
+    Aligns the IRIS and ALMA images by estimating the best Pearson coefficient between the 
+    average matrix of the ALMA and IRIS data.
+
+    Input:
+    - iris_fits_file: IRIS FITS file.
+    - timeutc_alma: Time UTC and ALMA cube taken from SALSA.
+    - alma_cube: ALMA cube.
+    - alma_resolution: Pixel size of ALMA (in Band 3 is 0.3 arcsec).
+    - method: Similarity method to use (default is 'pearson').
+
+    Output:
+    - x_max_pearson: Position in the IRIS matrix that has the best x correlation.
+    - y_max_pearson: Position in the IRIS matrix that has the best y correlation.
+    - int(posicion_n_0): Position in the IRIS datacube of the image that was taken at t_0 ALMA UTC.
+    - int(posicion_n_f): Position in the IRIS datacube of the image that was taken at t_f ALMA UTC.
     
-    """
+    This function aligns the IRIS and ALMA images by estimating the best Pearson correlation coefficient 
+    between the average matrix of the ALMA and IRIS data in the same  observation window and on the same scale. 
+    It isolates the images between the minimum (12th percentile) and maximum (95th percentile) values
+    and searches 
+    for the maximum Pearson correlation by transposing the ALMA image onto the IRIS image.
+    The function rescales the IRIS image to the ALMA resolution, selects the same window as the 
+    ALMA cube, calculates 
+    the mean IRIS and ALMA datacube, and performs the Pearson correlation analysis.
+    The function returns the x and y positions with the maximum correlation, as well as the positions in the IRIS 
+    datacube of the images taken at t_0 and t_f ALMA UTC.
+    '''
     print('|-----------Aligning ALMA  with IRIS {}  images----------| '.format(iris_fits_file[0].header['TWAVE1']))
     #| wearing  IRIS' resolution to ALMA resolution
     #|---- Band 3 ALMA resolution is 0.3 arcsec----|
@@ -428,8 +489,8 @@ def similarity(iris_fits_file, timeutc_alma, alma_cube, alma_resolution, method=
         rescaling_iris.append(rescale(iris_fits_file[0].data[i], scale_factor, anti_aliasing=False, order=0))
     rescaling_iris=np.array(rescaling_iris) 
     
-    print(print('Old IRIS VECTOR', iris_fits_file[0].data.shape),'New IRIS VECTOR', rescaling_iris.shape)
-    #print(np.max(rescaling_iris),np.min(rescaling_iris), np.std(rescaling_iris))
+    print('Old IRIS VECTOR', iris_fits_file[0].data.shape, 'New IRIS VECTOR', rescaling_iris.shape)
+
     #--------------------------------------------------------------------------------------------
     #--------------------------------------------------------------------------------------------
     
@@ -462,19 +523,13 @@ def similarity(iris_fits_file, timeutc_alma, alma_cube, alma_resolution, method=
         
     if method== 'pearson':
         print('|----Estimating Pearson coeffients---- | ')
-        for i in tqdm(range(0,iris_interp.shape[0]-255,1), position=0, desc="i", leave=False, colour='green', ncols=100):
-            for j in range(0,iris_interp.shape[1]-255,1):
-                matrix=iris_interp[0+i:253+i,0+j:253+j].copy()
-                #matrix=matrix.flatten()
+        for i in tqdm(range(0,iris_interp.shape[0]-alma_cube.shape[1]-2,1), position=0, desc="i", leave=False, colour='green', ncols=100):
+            for j in range(0,iris_interp.shape[1]-alma_cube.shape[2]-2,1):
+                matrix=iris_interp[0+i:alma_cube.shape[1]+i,0+j:alma_cube.shape[2]+j].copy()
                 corr, valor_p= pearsonr(matrix.flatten(), flatten_alma)
-          #      ssim_none = ssim(matrix, alma_interp,
-          #                       data_range=iris_interp.max() - iris_interp.min())
-
                 x=i+alma_interp.shape[1]//2
                 y=j+alma_interp.shape[0]//2
-
                 ccrr_pearson[x][y]=corr
-         #       ccrr_ssim[x][y] = ssim_none
         
         x_max_pearson = np.where(ccrr_pearson==np.max(ccrr_pearson))[1][0]
         y_max_pearson = np.where(ccrr_pearson==np.max(ccrr_pearson))[0][0]
@@ -482,219 +537,91 @@ def similarity(iris_fits_file, timeutc_alma, alma_cube, alma_resolution, method=
         print('________________________________________________________________________')
         print('x_max_pearson=',x_max_pearson  , '| y_max_pearson=', y_max_pearson,"| r=",np.max(ccrr_pearson))
         return  x_max_pearson/scale_factor, y_max_pearson/scale_factor, posicion_n_0 , posicion_n_f 
-        #-----------------------------------------------------------------------------------------------------------
         
-        if method== 'ssim':
-            print('|----Estimating Structural Similarity Index  (SSIM)---- | ')
-    
-            print('WARNING: Estimating the similarity between the images using this method is computationally expensive.')
-            for i in tqdm(range(0,iris_interp.shape[0]-255,1), position=0, desc="i", leave=False, colour='green', ncols=100):
-                for j in range(0,iris_interp.shape[1]-255,1):
-                    matrix=iris_interp[0+i:253+i,0+j:253+j].copy()
-                    
-                    
-                    ssim_none = ssim(matrix, alma_interp,
-                                     data_range=iris_interp.max() - iris_interp.min())
+    if method== 'ssim':
+        print('|----Estimating Structural Similarity Index  (SSIM)---- | ')
 
-                    x=i+alma_interp.shape[1]//2
-                    y=j+alma_interp.shape[0]//2
-
-                    ccrr_ssim[x][y] = ssim_none
-            
-
-
-            x_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[1][0]
-            y_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[0][0]
-            print('________________________________________________________________________')
-            print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
-                  y_max_ssim,   "| r=", np.max(ccrr_ssim))
-            return  x_max_ssim/scale_factor, y_max_ssim/scale_factor, posicion_n_0 , posicion_n_f 
-        #-----------------------------------------------------------------------------------------------------------
-            if method== 'pearson-ssim':
-                print('|----Estimating Pearson coeffients ans Estimating Structural Similarity Index  (SSIM) ---- | ')
-                print('WARNING: Estimating the similarity between the images using this method is computationally expensive.')
-                for i in tqdm(range(0,iris_interp.shape[0]-255,1), position=0, desc="i", leave=False, colour='green', ncols=100):
-                    for j in range(0,iris_interp.shape[1]-255,1):
-                        matrix=iris_interp[0+i:253+i,0+j:253+j].copy()
-                        corr, valor_p= pearsonr(matrix.flatten(), flatten_alma)
-                        ssim_none = ssim(matrix, alma_interp,
-                                         data_range=iris_interp.max() - iris_interp.min())
-
-                        x=i+alma_interp.shape[1]//2
-                        y=j+alma_interp.shape[0]//2
-
-                        ccrr_pearson[x][y]=corr
-                        ccrr_ssim[x][y] = ssim_none
+        print('WARNING: Estimating the similarity between the images using this method is computationally expensive.')
+        for i in tqdm(range(0,iris_interp.shape[0]-alma_cube.shape[1]-2,1), position=0, desc="i", leave=False, colour='green', ncols=100):
+            for j in range(0,iris_interp.shape[1]-alma_cube.shape[1]-2,1):
+                matrix=iris_interp[0+i:alma_cube.shape[1]+i,0+j:alma_cube.shape[2]+j].copy()
                 
-                x_max_pearson = np.where(ccrr_pearson==np.max(ccrr_pearson))[1][0]
-                y_max_pearson = np.where(ccrr_pearson==np.max(ccrr_pearson))[0][0]
+                ssim_none = ssim(matrix, alma_interp,
+                                    data_range=iris_interp.max() - iris_interp.min())
 
-                x_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[1][0]
-                y_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[0][0]
-                
-                print('________________________________________________________________________')
-                print('x_max_pearson=',x_max_pearson  , '| y_max_pearson=', y_max_pearson,"| r=",np.max(ccrr_pearson))
-                
-                print('________________________________________________________________________')
-                print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
-                      y_max_ssim,   "| r=", np.max(ccrr_ssim))
-                
-                x_mean=  (x_max_pearson+x_max_ssim)/(2*scale_factor)
-                x_mean=  round(x_mean)
-                
-                y_mean=  (y_max_pearson+y_max_ssim)/(2*scale_factor)
-                y_mean=  round(y_mean)
-                return   x_mean/scale_factor, y_mean/scale_factor, int(posicion_n_0), int(posicion_n_f)
+                x=i+alma_interp.shape[1]//2
+                y=j+alma_interp.shape[0]//2
+
+                ccrr_ssim[x][y] = ssim_none
         
+
+
+        x_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[1][0]
+        y_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[0][0]
+        print('________________________________________________________________________')
+        print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
+                y_max_ssim,   "| r=", np.max(ccrr_ssim))
+        return  x_max_ssim/scale_factor, y_max_ssim/scale_factor, posicion_n_0 , posicion_n_f 
     
+    #-----------------------------------------------------------------------------------------------------------
+    if method== 'pearson-ssim':
+        print('|----Estimating Pearson coeffients ans Estimating Structural Similarity Index  (SSIM) ---- | ')
+        print('WARNING: Estimating the similarity between the images using this method is computationally expensive.')
+        for i in tqdm(range(0,iris_interp.shape[0]-alma_cube.shape[1]-2,1), position=0, desc="i", leave=False, colour='green', ncols=100):
+            for j in range(0,iris_interp.shape[1]-alma_cube.shape[2]-2,1):
+                matrix=iris_interp[0+i:alma_cube.shape[1]+i,0+j:alma_cube.shape[2]+j].copy()
+                corr, valor_p= pearsonr(matrix.flatten(), flatten_alma)
+                ssim_none = ssim(matrix, alma_interp,
+                                    data_range=iris_interp.max() - iris_interp.min())
+
+                x=i+alma_interp.shape[1]//2
+                y=j+alma_interp.shape[0]//2
+
+                ccrr_pearson[x][y]=corr
+                ccrr_ssim[x][y] = ssim_none
+        
+        x_max_pearson = np.where(ccrr_pearson==np.max(ccrr_pearson))[1][0]
+        y_max_pearson = np.where(ccrr_pearson==np.max(ccrr_pearson))[0][0]
+
+        x_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[1][0]
+        y_max_ssim = np.where(ccrr_ssim == np.max(ccrr_ssim))[0][0]
+        
+        print('________________________________________________________________________')
+        print('x_max_pearson=',x_max_pearson  , '| y_max_pearson=', y_max_pearson,"| r=",np.max(ccrr_pearson))
+        
+        print('________________________________________________________________________')
+        print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
+                y_max_ssim,   "| r=", np.max(ccrr_ssim))
+        
+        x_mean=  (x_max_pearson+x_max_ssim)/(2*scale_factor)
+        x_mean=  round(x_mean)
+        
+        y_mean=  (y_max_pearson+y_max_ssim)/(2*scale_factor)
+        y_mean=  round(y_mean)
+        return   x_mean/scale_factor, y_mean/scale_factor, int(posicion_n_0), int(posicion_n_f)
+        
+
+        
 
 
-
-def aligning_IRIS_with_SDO(sdo_file, iris_data, time_vec_iris,time_vec_sdo,time_vec_ALMA ,path_img_crop):
+def aligning_IRIS_with_SDO_two(sdo_file, iris_data, iris_resolution,time_vec_iris,time_vec_sdo,time_vec_ALMA ,path_img_crop, method='pearson-ssim'):
     """
-    This function allows us to find a pixel reference in IRIS images to one snapshot(Photogram)
-    to do an alignment of IRIS'S image with SDO'S Images
-    For this, the SIMM and Pearson method was used to analyze correlations
-    --------------------Input----------------------------------
+    This function aligns an IRIS image with SDO images by finding a pixel reference in IRIS images
+    for a given snapshot (photogram) to perform the alignment.
+    
     Parameters:
-               sdo_file:      vector with the frames taken by the SDO/AIA. Its format is .npy 
-                              and it was created using the program "funtion_to_create_data_SDO_cube.ipynb"     
-               iris_data:     FILE .FITS obtained from IRIS database
-               
-               time_vec_iris: vector where its components are timeutc of every snapshot (photogram) 
-                              of IRIS data cube. The Fortmat of time_vec_iris's components is datetime.datetime, for example
-                              one of  time_vec_iris's components look like should be 
-                              datetime.datetime(2018, 4, 12, 15, 52, 31, 992187) 
-                              THIS VECTOR WAS  BUILT USING THE FUNCTION "creating_time_vector"
-                              which goes into more detail
-                              
-               time_vec_sdo:  vector where its components are timeutc of every snapshot (photogram) 
-                              of SDO data cube. The Fortmat of time_vec_sdo's components is datetime.datetime, for example
-                              one of  time_vec_sdo's components look like should be 
-                              datetime.datetime(2018, 4, 12, 15, 52, 31, 992187)
-                              THIS VECTOR WAS BUILT WITH THE PROGRAM "funtion_to_create_data_SDO_cube.ipynb"
+        - sdo_file: A vector with the frames taken by the SDO/AIA. It should be in .npy format
+          and created using the program "function_to_create_data_SDO_cube.ipynb".
+        - iris_data: The data cube obtained from the IRIS database in NP array format.
+        - iris_resolution: The resolution of the IRIS images.
+        - time_vec_iris: A vector containing the timeutc of every snapshot (photogram) of the IRIS data cube.
+        - time_vec_sdo: A vector containing the timeutc of every snapshot (photogram) of the SDO data cube.
+        - time_vec_ALMA: A vector containing the timeutc of every snapshot (photogram) of the ALMA data cube.
+        - path_img_crop: The path to the cropped images.
+        - method: The method to use for alignment. Options are 'pearson-ssim' (default), 'pearson', and 'ssim'.
 
-               time_vec_ALMA: vector where its components are timeutc of every snapshot (photogram) 
-                              of SDO data cube. The Fortmat of time_vec_ALMA's components is datetime.datetime, for example
-                              one of  time_vec_ALMA's components look like should be 
-                              datetime.datetime(2018, 4, 12, 15, 52, 31, 992187)
-                              THIS VECTOR TAKEN FROM  SALAT DATA BASE 
-                              
-               path_img_crop:
-    --------------------Input----------------------------------
-    Estimated heliprojective coordinates for the center of the 
-    IRIS matrix estimated using the SIMM and PEARSON method
-    
-    """
-    url                 = sorted(glob.glob(path_img_crop))
-    sdo_resolution      = fits.open(url[0])[0].header['CDELT2']
-    iris_resolution     = iris_data[0].header['CDELT1']
-    scale_factor        = iris_resolution/ sdo_resolution
-    iris_cube           = iris_data[0].data
-    print('scale_factor:', scale_factor)
-    print('Rescaling IRIS  images')
-    
-    rescaled_iris       = []
-    for i in tqdm(range(len(iris_cube)), colour='green'):
-        rescaled_iris.append(rescale(iris_cube[i], scale_factor, order=0,
-                                    anti_aliasing=False, preserve_range=True))
-    rescaled_iris       = np.array(rescaled_iris)
-
-    print('________________________________________________________________________')
-    print('initial shape:'   , sdo_file.shape,
-          '| rescaled shape:', rescaled_iris.shape)
-
-    # -------------------Selecting the same windown of ALMA----------------
-    posicion_n_0_sdo, posicion_n_f_sdo   = find_nearest(time_vec_sdo , time_vec_ALMA[0], time_vec_ALMA[-1],'SDO', 'ALMA')
-    posicion_n_0_iris, posicion_n_f_iris = find_nearest(time_vec_iris, time_vec_ALMA[0], time_vec_ALMA[-1],'IRIS', 'ALMA')
-    
-    mean_sdo    = np.sum([i for i in sdo_file[int(posicion_n_0_sdo):int(posicion_n_f_sdo)]], 0)/len(sdo_file[int(posicion_n_0_sdo):int(posicion_n_f_sdo)])
-    mean_iris   = np.sum([i for i in rescaled_iris[int(posicion_n_0_iris):int(posicion_n_f_iris)]],0)/len(rescaled_iris[int(posicion_n_0_iris):int(posicion_n_f_iris)])
-
-    sdo_interp  = np.interp(mean_sdo, (np.percentile(mean_sdo, 11), np.percentile(mean_sdo, 95)), (0, +1))
-    iris_interp = np.interp(mean_iris, (np.percentile(mean_iris, 11), np.percentile(mean_iris, 95)), (0, +1))
-    
-    
-    # -----------------------ALMA_VECTOR---------------------------------------
-    flatten_iris = iris_interp.flatten()
-    ccrr_pearson = np.zeros((sdo_interp.shape[0], sdo_interp.shape[1]))
-    ccrr_ssim    = np.zeros((sdo_interp.shape[0], sdo_interp.shape[1]))
-    print('|----Estimating Pearson and SSIM coeffients---- | ')
-    for i in tqdm(range(0, sdo_interp.shape[0]-iris_interp.shape[0]+1, 1), position=0, desc="i", leave=False, colour='green', ncols=100):
-        for j in range(0, sdo_interp.shape[1] - iris_interp.shape[1]+1, 1):
-            matrix = sdo_interp[0+i:iris_interp.shape[0]+i, 0+j:iris_interp.shape[1]+j].copy()
-            corr, valor_p = pearsonr(matrix.flatten(), flatten_iris)
-            ssim_none = ssim(matrix, iris_interp,
-                             data_range=sdo_interp.max() - sdo_interp.min())
-            x = i+iris_interp.shape[1]//2
-            y = j+iris_interp.shape[0]//2
-            ccrr_pearson[x][y] = corr
-            ccrr_ssim[x][y]    = ssim_none
-
-    x_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[1][0]
-    y_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[0][0]
-    x_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[1][0]
-    y_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[0][0]
-
-    print('________________________________________________________________________')
-    print('x_max_pearson=', x_max_pearson, '| y_max_pearson=',
-          y_max_pearson, "| r=", np.max(ccrr_pearson))
-
-    
-    print('________________________________________________________________________')
-    print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
-          y_max_ssim,   "| r=", np.max(ccrr_ssim))
-
-    map_sunpy                            = sunpy.map.Map(url[posicion_n_0_sdo])
-    x_scaled_pearson , y_scaled_pearson  = x_max_pearson,  y_max_pearson
-    cord_pearson                         = map_sunpy.pixel_to_world(x_scaled_pearson *u.pix,  y_scaled_pearson *u.pix )
-    print('Pearson: (Tx, Ty) in arcsec',cord_pearson.Tx.value,cord_pearson.Ty.value)
- 
-    print('________________________________________________________________________')
-    x_scaled_ssim, y_scaled_ssim =  x_max_ssim   ,  y_max_ssim
-    cord_ssim                    = map_sunpy.pixel_to_world(x_scaled_ssim*u.pix,  y_scaled_ssim*u.pix )
-    print('SSIM   : (Tx, Ty) in arcsec',cord_ssim.Tx.value,cord_ssim.Ty.value)
-
-
-
-
-
-
-def aligning_IRIS_with_SDO_two(sdo_file, iris_data, iris_resolution,time_vec_iris,time_vec_sdo,time_vec_ALMA ,path_img_crop):
-    """
-    This function allows us to find a pixel reference in IRIS images to one snapshot(Photogram)
-    to do an alignment of IRIS'S image with SDO'S Images
-    For this, the SIMM and Pearson method was used to analyze correlations
-    --------------------Input----------------------------------
-    Parameters:
-               sdo_file:      vector with the frames taken by the SDO/AIA. Its format is .npy 
-                              and it was created using the program "funtion_to_create_data_SDO_cube.ipynb"     
-               iris_data:      data cube obtained from IRIS database in format NP array 
-               
-               time_vec_iris: vector where its components are timeutc of every snapshot (photogram) 
-                              of IRIS data cube. The Fortmat of time_vec_iris's components is datetime.datetime, for example
-                              one of  time_vec_iris's components look like should be 
-                              datetime.datetime(2018, 4, 12, 15, 52, 31, 992187) 
-                              THIS VECTOR WAS  BUILT USING THE FUNCTION "creating_time_vector"
-                              which goes into more detail
-                              
-               time_vec_sdo:  vector where its components are timeutc of every snapshot (photogram) 
-                              of SDO data cube. The Fortmat of time_vec_sdo's components is datetime.datetime, for example
-                              one of  time_vec_sdo's components look like should be 
-                              datetime.datetime(2018, 4, 12, 15, 52, 31, 992187)
-                              THIS VECTOR WAS BUILT WITH THE PROGRAM "funtion_to_create_data_SDO_cube.ipynb"
-
-               time_vec_ALMA: vector where its components are timeutc of every snapshot (photogram) 
-                              of SDO data cube. The Fortmat of time_vec_ALMA's components is datetime.datetime, for example
-                              one of  time_vec_ALMA's components look like should be 
-                              datetime.datetime(2018, 4, 12, 15, 52, 31, 992187)
-                              THIS VECTOR TAKEN FROM  SALAT DATA BASE 
-                              
-               path_img_crop:
-    --------------------Input----------------------------------
-    Estimated heliprojective coordinates for the center of the 
-    IRIS matrix estimated using the SIMM and PEARSON method
-    
+    Returns:
+        The estimated helioprojective coordinates (Tx, Ty) of the center of the IRIS matrix.
     """
 
 
@@ -725,66 +652,118 @@ def aligning_IRIS_with_SDO_two(sdo_file, iris_data, iris_resolution,time_vec_iri
     sdo_interp  = np.interp(mean_sdo, (np.percentile(mean_sdo, 11), np.percentile(mean_sdo, 95)), (0, +1))
     iris_interp = np.interp(mean_iris, (np.percentile(mean_iris, 11), np.percentile(mean_iris, 95)), (0, +1))
     
-    
     # -----------------------ALMA_VECTOR---------------------------------------
     flatten_iris = iris_interp.flatten()
     ccrr_pearson = np.zeros((sdo_interp.shape[0], sdo_interp.shape[1]))
     ccrr_ssim    = np.zeros((sdo_interp.shape[0], sdo_interp.shape[1]))
-    print('|----Estimating Pearson and SSIM coeffients---- | ')
-    for i in tqdm(range(0, sdo_interp.shape[0]-iris_interp.shape[0]+1, 1), position=0, desc="i", leave=False, colour='green', ncols=100):
-        for j in range(0, sdo_interp.shape[1] - iris_interp.shape[1]+1, 1):
-            matrix = sdo_interp[0+i:iris_interp.shape[0]+i, 0+j:iris_interp.shape[1]+j].copy()
-            corr, valor_p = pearsonr(matrix.flatten(), flatten_iris)
-            ssim_none = ssim(matrix, iris_interp,
-                             data_range=sdo_interp.max() - sdo_interp.min())
-            x = i+iris_interp.shape[1]//2
-            y = j+iris_interp.shape[0]//2
-            ccrr_pearson[x][y] = corr
-            ccrr_ssim[x][y]    = ssim_none
+    method = method.lower()
 
-    x_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[1][0]
-    y_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[0][0]
-    x_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[1][0]
-    y_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[0][0]
+    if method== 'pearson-ssim':
+        print('|----Estimating Pearson and SSIM coeffients---- | ')
+        for i in tqdm(range(0, sdo_interp.shape[0]-iris_interp.shape[0]+1, 1), position=0, desc="i", leave=False, colour='green', ncols=100):
+            for j in range(0, sdo_interp.shape[1] - iris_interp.shape[1]+1, 1):
+                matrix = sdo_interp[0+i:iris_interp.shape[0]+i, 0+j:iris_interp.shape[1]+j].copy()
+                corr, valor_p = pearsonr(matrix.flatten(), flatten_iris)
+                ssim_none = ssim(matrix, iris_interp,
+                                data_range=sdo_interp.max() - sdo_interp.min())
+                x = i+iris_interp.shape[1]//2
+                y = j+iris_interp.shape[0]//2
+                ccrr_pearson[x][y] = corr
+                ccrr_ssim[x][y]    = ssim_none
 
-    print('________________________________________________________________________')
-    print('x_max_pearson=', x_max_pearson, '| y_max_pearson=',
-          y_max_pearson, "| r=", np.max(ccrr_pearson))
+        x_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[1][0]
+        y_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[0][0]
 
+        x_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[1][0]
+        y_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[0][0]
+
+        print('________________________________________________________________________')
+        print('x_max_pearson=', x_max_pearson, '| y_max_pearson=',
+            y_max_pearson, "| r=", np.max(ccrr_pearson))
+
+        print('________________________________________________________________________')
+        print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
+            y_max_ssim,   "| r=", np.max(ccrr_ssim))
+
+        map_sunpy                            = sunpy.map.Map(url[posicion_n_0_sdo])
+        cord_pearson                         = map_sunpy.pixel_to_world(x_max_pearson *u.pix,  y_max_pearson *u.pix )
+        print('Pearson: (Tx, Ty) in arcsec',cord_pearson.Tx.value,  cord_pearson.Ty.value)
     
-    print('________________________________________________________________________')
-    print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
-          y_max_ssim,   "| r=", np.max(ccrr_ssim))
+        print('________________________________________________________________________')
+        cord_ssim                    = map_sunpy.pixel_to_world(x_max_ssim*u.pix,  y_max_ssim*u.pix )
+        print('SSIM   : (Tx, Ty) in arcsec',cord_ssim.Tx.value,     cord_ssim.Ty.value)
 
-    map_sunpy                            = sunpy.map.Map(url[posicion_n_0_sdo])
-    #x_scaled_pearson , y_scaled_pearson  = x_max_pearson,  y_max_pearson
-    cord_pearson                         = map_sunpy.pixel_to_world(x_max_pearson *u.pix,  y_max_pearson *u.pix )
-    print('Pearson: (Tx, Ty) in arcsec',cord_pearson.Tx.value,cord_pearson.Ty.value)
- 
-    print('________________________________________________________________________')
-    #x_scaled_ssim, y_scaled_ssim =  x_max_ssim   ,  y_max_ssim
-    cord_ssim                    = map_sunpy.pixel_to_world(x_max_ssim*u.pix,  y_max_ssim*u.pix )
-    print('SSIM   : (Tx, Ty) in arcsec',cord_ssim.Tx.value,cord_ssim.Ty.value)
-
-
+        x_cord_hep = (cord_ssim.Tx.value + cord_pearson.Tx.value)/2
+        y_cord_hep = (cord_ssim.Ty.value + cord_pearson.Ty.value)/2
         
-    x_cord_hep = (cord_ssim.Tx.value+cord_pearson.Tx.value)/2
-    y_cord_hep = (cord_ssim.Ty.value+cord_pearson.Ty.value)/2
+        print('mean (T_x, T_y)=',x_cord_hep, y_cord_hep)
+        return x_cord_hep, y_cord_hep
     
-    return x_cord_hep, y_cord_hep
+    if method== 'pearson':
+        print('|----Estimating Pearson  coeffients---- | ')
+        for i in tqdm(range(0, sdo_interp.shape[0]-iris_interp.shape[0]+1, 1), position=0, desc="i", leave=False, colour='green', ncols=100):
+            for j in range(0, sdo_interp.shape[1] - iris_interp.shape[1]+1, 1):
+                matrix = sdo_interp[0+i:iris_interp.shape[0]+i, 0+j:iris_interp.shape[1]+j].copy()
+                corr, valor_p = pearsonr(matrix.flatten(), flatten_iris)
+                x = i+iris_interp.shape[1]//2
+                y = j+iris_interp.shape[0]//2
+                ccrr_pearson[x][y] = corr
+        x_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[1][0]
+        y_max_pearson = np.where(ccrr_pearson == np.max(ccrr_pearson))[0][0]
+        print('________________________________________________________________________')
+        print('x_max_pearson=', x_max_pearson, '| y_max_pearson=',
+            y_max_pearson, "| r=", np.max(ccrr_pearson))
     
- 
+        map_sunpy                            = sunpy.map.Map(url[posicion_n_0_sdo])
+        cord_pearson                         = map_sunpy.pixel_to_world(x_max_pearson *u.pix,  y_max_pearson *u.pix )
+        print('Pearson: (Tx, Ty) in arcsec',cord_pearson.Tx.value,  cord_pearson.Ty.value)
+        return cord_pearson.Tx.value,   cord_pearson.Ty.value
+
+    if method== 'ssim':
+        print('|----Estimating  SSIM coeffients---- | ')
+        for i in tqdm(range(0, sdo_interp.shape[0]-iris_interp.shape[0]+1, 1), position=0, desc="i", leave=False, colour='green', ncols=100):
+            for j in range(0, sdo_interp.shape[1] - iris_interp.shape[1]+1, 1):
+
+                matrix = sdo_interp[0+i:iris_interp.shape[0]+i, 0+j:iris_interp.shape[1]+j].copy()
+
+                ssim_none = ssim(matrix, iris_interp,
+                                data_range=sdo_interp.max() - sdo_interp.min())
+                x = i+iris_interp.shape[1]//2
+                y = j+iris_interp.shape[0]//2
+
+                ccrr_ssim[x][y]    = ssim_none
+
+        x_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[1][0]
+        y_max_ssim    = np.where(ccrr_ssim    == np.max(ccrr_ssim))[0][0]
+        print('________________________________________________________________________')
+        print('x_max_ssim   =', x_max_ssim, '| y_max_ssim   =',
+            y_max_ssim,   "| r=", np.max(ccrr_ssim))
+
+        print('________________________________________________________________________')
+        map_sunpy                            = sunpy.map.Map(url[posicion_n_0_sdo])
+        cord_ssim                    = map_sunpy.pixel_to_world(x_max_ssim*u.pix,  y_max_ssim*u.pix )
+        print('SSIM   : (Tx, Ty) in arcsec',cord_ssim.Tx.value,     cord_ssim.Ty.value)
+        
+        return cord_ssim.Tx.value, cord_ssim.Ty.value
+
+
+
+
+
+
 def sdo_rescale(sdo_file, sdo_resolution,alma_resolution):
-    '''
-    This function allows us to rescale the SDO images so that the 
-    pixel size of the SDO is the same as that of ALMA
-    --------------------Input----------------------------------
-    Parameters:  
-              sdo_file: type array   is a vector where its position correspond a matrices 
-                           (A photogram of  the sum)  taken from SDO 
-    
-    Output:   SDO Images rescaled (a datacube)
-    '''
+    """
+    This function rescales the SDO images so that the pixel size of the SDO is the same as that of ALMA.
+
+    Parameters:
+        - sdo_file: A vector where each position corresponds to a matrix (a photogram of the sum) 
+          taken from SDO.
+        - sdo_resolution: The pixel size of the SDO images.
+        - alma_resolution: The pixel size of the ALMA images.
+
+    Returns:
+        The rescaled SDO images as a datacube.
+    """
     scale_factor = sdo_resolution/alma_resolution
     print('scale_factor:', scale_factor)
     # For example to AIA 94A filter
@@ -884,28 +863,32 @@ def  cutting_iris_data(files, time_vec,cord_pix_max  ,alma_cube, alma_time , pix
     
     
     
-    
-    
-    
+   
 def find_nearest_modificated(array, alma_t0):
-    '''
-    This function allows us to find (in a time vector) 
-    the initial and final times at times alma_t0, alma_tf.
-    
-    --------------------Input----------------------------------
-    Parameters: 
-                array : type array and its elements is in the datetime.datetime 
-                        format (in this case we  obtained this vector using the )
-                        in our case this time vector was obtained with the DATA-OBS 
-                        of each previously downloaded SDO frame  
-                alma_t0: type T0 is  where the ALMA observation has started
-                         datetime.datetime  format
-                alma_tf: type Tf is  where the ALMA observation has finalized 
-                         datetime.datetime  format  
-    --------------------Output----------------------------------
-    Positions in the vector array (array) closest to the   alma_t0, alma_tf        
-    '''
+    """
+    This function finds the position in a time vector that is closest to the given alma_t0.
+
+    Parameters:
+        - array: An array of datetime.datetime elements.
+        - alma_t0: The datetime at which the ALMA observation started.
+
+    Returns:
+        The position in the array that is closest to alma_t0.
+    """
     array = np.asarray(array)
     idx_0 = (np.abs(array - alma_t0)).argmin()
     #print(array[idx_0],alma_t0)
     return idx_0
+
+
+
+
+
+
+
+
+
+
+
+
+
