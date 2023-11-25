@@ -101,12 +101,11 @@ observation of April 12, 2018 at 12:15 UTC
 
 
 ![Alineación ALMA con IRIS](IMAGES_RESULTS/result_alingnment_with_iris.jpg)
-
-
+### Figure 1. Result of the alignment ALMA Band 3, SDO, and IRIS for region D06 of the SALSA database, corresponding to the observation of April 12, 2018 at 12:15 UTC. The blue circle represents the ALMA FoV, which is centered on the helioprojective coordinates Tx, Ty = -134.21 -396.86, which were estimated during the alignment process. The regions of the chromosphere with a brightness temperature of 7000 and 7500 K in the ALMA images are delimited by black and yellow contours.
 
 
 ![Alineación ALMA con IRIS](IMAGES_RESULTS/IRIS_alignment_with_SDO.png)
-
+### Figure 2. Results of aligning IRIS images with SDO
 
 
 
