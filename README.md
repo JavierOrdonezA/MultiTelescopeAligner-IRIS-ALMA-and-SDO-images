@@ -91,6 +91,15 @@ The process is optimized to limit computational costs, including strategic cropp
 
 
 
+![Alineación ALMA con IRIS](IMAGES_RESULTS/Table_ALMA_Alignment_with_IRIS.png)
+### Table 1. Results of the alignment of the IRIS images with the ALMA images for region D06 from the SALSA database, corresponding to the
+observation of April 12, 2018 at 12:15 UTC
+![Alineación ALMA con IRIS](IMAGES_RESULTS/Table_IRIS_Alignment_with_the_SDO.png)
+### Table 2. Results of the alignment of the IRIS images with the SDO images for region D06 from the SALSA database, corresponding to the
+observation of April 12, 2018 at 12:15 UTC
+
+
+
 ![Alineación ALMA con IRIS](IMAGES_RESULTS/result_alingnment_with_iris.jpg)
 
 
