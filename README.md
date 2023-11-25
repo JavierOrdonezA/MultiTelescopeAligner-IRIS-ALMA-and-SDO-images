@@ -8,6 +8,7 @@ This project presents a code for aligning images from ALMA, IRIS, and SDO telesc
 
 
 
-![Alineación ALMA con IRIS](IMAGES_RESULTS/2796.png)
+![Alineación ALMA con IRIS](IMAGES_RESULTS/IRIS_alignment_with_SDO.png)
+
 
 
