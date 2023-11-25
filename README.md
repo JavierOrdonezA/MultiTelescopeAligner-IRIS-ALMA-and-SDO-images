@@ -89,6 +89,7 @@ The process is optimized to limit computational costs, including strategic cropp
 - This technique is versatile and can be adapted for use with other telescopes, considering the emission line formation heights for effective correlation.
 - Future enhancements could include an advanced alignment approach considering projection effects, further refining the precision of the alignment process.
 
+### Note: In the function_that_we_used_and_information folder, you'll find essential tools for astronomical image processing, including a function for aligning ALMA images with SDO and IRIS with SDO. Additionally, the folder contains a convenient script for downloading SDO data from the JSOC database.
 
 
 ![Alineación ALMA con IRIS](IMAGES_RESULTS/Table_ALMA_Alignment_with_IRIS.png)
