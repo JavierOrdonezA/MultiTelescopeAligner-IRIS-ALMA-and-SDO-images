@@ -64,32 +64,42 @@ Recognizing this need, our project introduces an innovative preprocessing method
    - Averaged helioprojective coordinates for all SDO filters.
    - Aligned IRIS images with SDO, and consequently aligned ALMA images
 
+The process is optimized to limit computational costs, including strategic cropping to narrow the search range for maximum correlations. The entire procedure is implemented in Python. More details on this process will be available in an upcoming article, with the DOI to be added to this README upon publication.
+
+
+
+## Results and Analysis
+
+### Alignment of ALMA Images with IRIS
+- The pixel positions for maximum correlation between ALMA and IRIS images were determined, showing less than a 2% discrepancy in most cases.
+- An exception was noted with IRIS 2832Å images, where a discrepancy of about 26% was observed due to observational differences in solar layers.
+- The Pearson Correlation Coefficient (PCC) method was preferred over the Structural Similarity Index (SSIM) due to its reliability and computational efficiency.
+
+### Alignment of IRIS Images with SDO
+- The alignment process involved averaging and interpolating the IRIS and SDO images, followed by a correlation analysis.
+- The average helioprojective coordinates obtained were $T_x$ = -134.21 and $T_y$ = -396.86, with minor discrepancies compared to the SALSA database.
+
+### Visual Representation
+- Figures depicting the alignment results show clear correlations between the thermal structures observed by ALMA and the corresponding observations from IRIS and SDO.
+
+## Conclusions
+
+- The alignment process effectively synchronizes ALMA and IRIS images using SDO helioprojective coordinates as a reference.
+- The method shows high accuracy with minimal discrepancies, proving its effectiveness in aligning solar images from different telescopes.
+- This technique is versatile and can be adapted for use with other telescopes, considering the emission line formation heights for effective correlation.
+- Future enhancements could include an advanced alignment approach considering projection effects, further refining the precision of the alignment process.
+
+
+
+![Alineación ALMA con IRIS](IMAGES_RESULTS/result_alingnment_with_iris.jpg)
 
 
 
 
+![Alineación ALMA con IRIS](IMAGES_RESULTS/IRIS_alignment_with_SDO.png)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### Optimization and Implementation
-The process is optimized to limit computational costs, including strategic cropping to narrow the search range for maximum correlations. The entire procedure is implemented in Python.
-
-### Upcoming Publication
-More details on this process will be available in an upcoming article, with the DOI to be added to this README upon publication.
 
 
 
@@ -107,14 +117,6 @@ We extend our gratitude to all collaborators and contributors to this project.
 
 
 
-
-
-![Alineación ALMA con IRIS](IMAGES_RESULTS/result_alingnment_with_iris.jpg)
-
-
-
-
-![Alineación ALMA con IRIS](IMAGES_RESULTS/IRIS_alignment_with_SDO.png)
 
 
 
