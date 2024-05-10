@@ -29,4 +29,9 @@ This will install all necessary dependencies and make the library available for 
 ## Usage and Examples
 Detailed examples on how to utilize the functions are provided in the `Guide_Example_and_Results` folder. This includes a comprehensive guide on the types of data (formats) that should be used as input for the functions. Please refer to the `Guide_Example_and_Results` directory to understand the setup and execution of functions within this library.
 
+## Methodology
+
+### Data Acquisition
+
+Data is systematically sourced from ALMA, IRIS, and SDO, focusing on regions observed simultaneously by these telescopes. The SALSA database is instrumental in identifying relevant observational data.
 
