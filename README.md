@@ -35,3 +35,27 @@ Detailed examples on how to utilize the functions are provided in the `Guide_Exa
 
 Data is systematically sourced from ALMA, IRIS, and SDO, focusing on regions observed simultaneously by these telescopes. The SALSA database is instrumental in identifying relevant observational data.
 
+### Data Preparation
+Images from SDO and ALMA are rotated to align with solar north. IRIS images are rescaled to match ALMA’s pixel size using the arcsecond ratio.
+
+### Alignment Process
+* ALMA and IRIS: Correlation analysis is performed between processed images to find the best alignment using PCC and SSIM.
+* IRIS and SDO: Cropped and rescaled IRIS images are aligned with corresponding SDO frames, enhancing the Field of View to slightly exceed that of ALMA’s.
+
+## Results and Analysis
+Figures included in `Guide_Example_and_Results` demonstrate the successful correlation and alignment of the thermal structures observed by ALMA with data from IRIS and SDO.
+
+## Conclusions
+This alignment methodology not only facilitates a deeper understanding of the solar atmosphere’s dynamics but also proves highly accurate and computationally efficient. The approach is adaptable and can potentially be extended to other telescopes and observational data sets.
+
+## Citation
+
+For more details on the process, see:
+**Method article**: 'https://arxiv.org/abs/2404.04401',
+
+**Second chapter of my master's thesis** for more details than in the paper: 'https://repositorio.unal.edu.co/handle/unal/85838'.
+
+---
+**F. J. Ordonez Araujo (fordonezaraujo@gmail.com)**
+
+**J. C Guevara Gomez (juancamilo.guevaragomez@gmail.com)**
