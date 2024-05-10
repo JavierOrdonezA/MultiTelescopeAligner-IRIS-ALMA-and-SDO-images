@@ -1,0 +1,10 @@
+# SolarAlignmentPy library requirements
+# Author: F. J. Ordonez A
+
+astropy==5.1.1       # For astronomical calculations and formats
+scikit-image==0.19.3 # For image processing
+matplotlib==3.7.2    # For data visualization
+tqdm==4.66.1         # For progress bars in loops and processes
+numpy==1.25.2        # For efficient numerical operations
+sunpy==4.0.5         # For solar data management and analysis
+scipy==1.11.1
