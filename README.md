@@ -57,7 +57,7 @@ This project is open source and available under the MIT License. This allows for
 
 MIT License
 
-Copyright (c) [year] [fullname]
+Copyright (c) [2024] [F. J. Ordonez Araujo, J. C Guevara Gomez]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
