@@ -17,3 +17,11 @@ To install this library, please follow these steps:
 1. Clone the repository from GitHub:
    ```bash
    git clone https://github.com/JavierOrdonezA/Alignment-of-IRIS-ALMA-and-SDO-images.git
+2. Navigate to the cloned directory:
+   ```bash
+   cd Alignment-of-IRIS-ALMA-and-SDO-images
+3. Execute the setup script to install the library:
+   ```bash
+   python setup.py install
+   
+This will install all necessary dependencies and make the library available for use in your Python environment.
