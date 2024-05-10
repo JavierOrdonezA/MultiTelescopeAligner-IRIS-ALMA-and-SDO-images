@@ -48,6 +48,35 @@ Figures included in `Guide_Example_and_Results` demonstrate the successful corre
 ## Conclusions
 This alignment methodology not only facilitates a deeper understanding of the solar atmosphere’s dynamics but also proves highly accurate and computationally efficient. The approach is adaptable and can potentially be extended to other telescopes and observational data sets.
 
+
+## Future Directions
+Future updates may include an advanced alignment algorithm that considers projection effects, aiming to further refine the precision and applicability of this technique.
+
+## License
+This project is open source and available under the MIT License. This allows for modification, distribution, and private use.
+
+MIT License
+
+Copyright (c) [year] [fullname]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY,
+
+
+
 ## Citation
 
 For more details on the process, see:
