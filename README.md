@@ -1,6 +1,6 @@
 # Alignment of IRIS, ALMA, and SDO Images
  
-## Introduction
+## Introduction  
 This project develops a robust method for aligning images from three major solar observation instruments: the Atacama Large Millimeter/submillimeter Array (ALMA), Interface Region Imaging Spectrograph (IRIS), and the Solar Dynamics Observatory (SDO). The code focuses on co-observations in the D06 region within the Solar ALMA Science Archive (SALSA), enhancing the understanding of solar atmospheric dynamics by synchronizing data from these telescopes spatially and temporally.
 
 ## Motivation and Objectives
