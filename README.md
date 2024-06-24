@@ -90,23 +90,5 @@ Thanks For Watching This Repository!
 Feel Free To Fork And Report If You Find Any Issue :)
 
 
----
-
-
-  $$
-  \frac{\partial C}{\partial t} = D \frac{\partial^2 C}{\partial x^2} + r C (1 - C)
-  $$
-
-  $$  
-  \begin{cases}
-    m \frac{d^2 x}{dt^2} = -b v_x \sqrt{v_x^2 + v_y^2} \\
-    m \frac{d^2 y}{dt^2} = -mg - b v_y \sqrt{v_x^2 + v_y^2}
-  \end{cases}
- $$
-    
-  $$
-  i \hbar \frac{\partial \psi}{\partial t} = \left( -\frac{\hbar^2}{2m} \frac{\partial^2}{\partial x^2} + \frac{1}{2} m \omega^2 x^2 + k x^4 \right) \psi
-  $$
-
 
 
