@@ -47,6 +47,7 @@ Figures included in `Guide_Example_and_Results` demonstrate the successful corre
 
 ## Conclusions
 This alignment methodology not only facilitates a deeper understanding of the solar atmosphere’s dynamics but also proves highly accurate and computationally efficient. The approach is adaptable and can potentially be extended to other telescopes and observational data sets.
+![Alignment Results](https://github.com/JavierOrdonezA/MultiTelescopeAligner-IRIS-ALMA-and-SDO-images/blob/master/Guide_Example_and_Results/result_alingnment_with_iris_new_plot_dpi_100.jpg)
 
 
 ## Future Directions
